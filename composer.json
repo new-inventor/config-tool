@@ -1,0 +1,53 @@
+{
+  "name": "newInventor/settings-tool",
+  "description": "Settings tool for projects",
+  "minimum-stability": "stable",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Georgy Ionov",
+      "email": "newinventor20@gmail.com"
+    }
+  ],
+  "config": {
+    "vendor-dir": "vendor"
+  },
+  "autoload": {
+    "psr-4": {
+      "NewInventor\\SettingsTool\\": "src/"
+    }
+  },
+  "repositories": [
+    {
+      "type": "package",
+      "package": {
+        "name": "newInventor/singleton",
+        "version": "1.0.0",
+        "source": {
+          "url": "https://github.com/newInventor/singleton",
+          "type": "git",
+          "reference": "master"
+        }
+      }
+    },
+    {
+      "type": "package",
+      "package": {
+        "name": "newInventor/type-checker",
+        "version": "1.0.0",
+        "source": {
+          "url": "https://github.com/newInventor/type-checker",
+          "type": "git",
+          "reference": "master"
+        }
+      }
+    }
+  ],
+  "require": {
+    "newInventor/singleton": "*",
+    "newInventor/type-checker": "*"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "5.1.*"
+  }
+}
