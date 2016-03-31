@@ -9,17 +9,21 @@ namespace NewInventor\EasyForm;
 
 use NewInventor\EasyForm\Helper\ArrayHelper;
 use NewInventor\Singleton\SingletonTrait;
+use NewInventor\TypeChecker\Exception\ArgumentException;
 use NewInventor\TypeChecker\Exception\ArgumentTypeException;
+use NewInventor\TypeChecker\TypeChecker;
 
 class Settings
 {
     use SingletonTrait;
     /** @var array */
     private static $settings;
+    /** @var string */
+    private $routingFilePath;
 
     protected function __construct()
     {
-        $paths = include './config.php';
+        $paths = include $this->routingFilePath;
         foreach($paths as $path){
             if(!file_exists($path)){
                 continue;
@@ -82,6 +86,23 @@ class Settings
                 return $el['default'];
             }
         }
+
         return $default;
+    }
+
+    public function init($routingFilePath = '')
+    {
+        TypeChecker::getInstance()
+            ->isString($routingFilePath, 'routingFilePath')
+            ->throwTypeErrorIfNotValid();
+
+        if(empty($routingFilePath)){
+            $routingFilePath = './config.php';
+        }
+        if(file_exists($routingFilePath)){
+            $this->routingFilePath = $routingFilePath;
+        }else{
+            throw new ArgumentException('Файл настроек не найден', 'routingFilePath');
+        }
     }
 }
