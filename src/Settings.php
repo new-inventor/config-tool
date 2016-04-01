@@ -8,7 +8,7 @@
 namespace NewInventor\EasyForm;
 
 use NewInventor\EasyForm\Helper\ArrayHelper;
-use NewInventor\Singleton\SingletonTrait;
+use NewInventor\Patterns\SingletonTrait;
 use NewInventor\TypeChecker\Exception\ArgumentException;
 use NewInventor\TypeChecker\Exception\ArgumentTypeException;
 use NewInventor\TypeChecker\TypeChecker;
