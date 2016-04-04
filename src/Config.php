@@ -132,20 +132,21 @@ class Config
 
     /**
      * @param string|int|array $route
-     * @param string $filePath
+     * @param string           $filePath
+     *
      * @throws ArgumentException
      */
     public function _mergeFile($route, $filePath)
     {
         TypeChecker::getInstance()
-            ->isString($filePath, 'fileName')
+            ->isString($filePath, 'filePath')
             ->throwTypeErrorIfNotValid();
 
-        if(file_exists($filePath)){
+        if (file_exists($filePath)) {
             $config = include $filePath;
             $this->_merge($route, $config);
-        }else{
-            throw new ArgumentException('Файл роутинга настроек не найден', 'routingFilePath');
+        } else {
+            throw new ArgumentException('Файл настроек не найден', 'filePath');
         }
     }
 
