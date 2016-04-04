@@ -24,7 +24,7 @@ class Config
     const DEFAULT_KEY = 'default';
     const ALIAS_KEY = 'alias';
 
-    protected function __construct($routingFilePath)
+    protected function __construct($routingFilePath = '')
     {
         $this->setRoutingPaths($routingFilePath);
 
