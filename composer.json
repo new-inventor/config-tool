@@ -1,6 +1,6 @@
 {
-  "name": "new-inventor/settings-tool",
-  "description": "Settings tool for projects",
+  "name": "new-inventor/config-tool",
+  "description": "Config tool for projects",
   "minimum-stability": "dev",
   "license": "MIT",
   "authors": [
@@ -14,7 +14,7 @@
   },
   "autoload": {
     "psr-4": {
-      "NewInventor\\SettingsTool\\": "src/"
+      "NewInventor\\ConfigTool\\": "src/"
     }
   },
   "require": {

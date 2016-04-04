@@ -6,7 +6,5 @@
  */
 
 return [
-    'paths' => [
-        $_SERVER['DOCUMENT_ROOT'] . '/config/main.php'
-    ]
+    __DIR__ . '/config/test.php',
 ];
