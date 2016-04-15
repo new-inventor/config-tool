@@ -11,6 +11,7 @@ use NewInventor\ConfigTool\Helper\ArrayHelper;
 use NewInventor\Patterns\SingletonTrait;
 use NewInventor\TypeChecker\Exception\ArgumentException;
 use NewInventor\TypeChecker\Exception\ArgumentTypeException;
+use NewInventor\TypeChecker\SimpleTypes;
 use NewInventor\TypeChecker\TypeChecker;
 
 class Config
@@ -24,9 +25,13 @@ class Config
     const DEFAULT_KEY = 'default';
     const ALIAS_KEY = 'alias';
 
-    protected function __construct($routingFilePath = '')
+    /**
+     * Config constructor.
+     * @param array $routing
+     */
+    protected function __construct(array $routing = [])
     {
-        $this->setRoutingPaths($routingFilePath);
+        $this->setRoutingPaths($routing);
 
         foreach($this->routingPaths as $path){
             if(!file_exists($path)){
@@ -38,23 +43,16 @@ class Config
     }
 
     /**
-     * @param string $routingFilePath
+     * @param array $routing
      * @throws ArgumentException
      * @throws \Exception
      */
-    protected function setRoutingPaths($routingFilePath = '')
+    protected function setRoutingPaths(array $routing)
     {
         TypeChecker::getInstance()
-            ->isString($routingFilePath, 'routingFilePath')
-            ->throwTypeErrorIfNotValid();
-
-        if(file_exists($routingFilePath)){
-            $this->routingPaths = include $routingFilePath;
-        }elseif(mb_strlen($routingFilePath) === 0){
-            $this->routingPaths = [];
-        }else{
-            throw new ArgumentException('Файл роутинга настроек не найден', 'routingFilePath');
-        }
+            ->checkArray($routing, [SimpleTypes::STRING], 'routing')
+            ->throwCustomErrorIfNotValid('Список путей к файлам настроек должен быть массивом строк.');
+        $this->routingPaths = $routing;
     }
 
     /**

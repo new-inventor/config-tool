@@ -47,22 +47,22 @@ class ArrayHelperTest extends PHPUnit_Framework_TestCase
 
     public function testCheckRout()
     {
-        $this->assertTrue(ArrayHelper::CheckRoute('asd'));
-        $this->assertTrue(ArrayHelper::CheckRoute(['asd']));
-        $this->assertTrue(ArrayHelper::CheckRoute(['asd', 0]));
-        $this->assertTrue(ArrayHelper::CheckRoute([0]));
-        $this->assertTrue(ArrayHelper::CheckRoute(0));
+        $this->assertTrue(ArrayHelper::checkRoute('asd'));
+        $this->assertTrue(ArrayHelper::checkRoute(['asd']));
+        $this->assertTrue(ArrayHelper::checkRoute(['asd', 0]));
+        $this->assertTrue(ArrayHelper::checkRoute([0]));
+        $this->assertTrue(ArrayHelper::checkRoute(0));
     }
 
     public function testException1()
     {
         $this->setExpectedException('NewInventor\TypeChecker\Exception\ArgumentTypeException');
-        ArrayHelper::CheckRoute(false);
+        ArrayHelper::checkRoute(false);
     }
 
     public function testException2()
     {
         $this->setExpectedException('NewInventor\TypeChecker\Exception\ArgumentException');
-        ArrayHelper::CheckRoute([false]);
+        ArrayHelper::checkRoute([false]);
     }
 }

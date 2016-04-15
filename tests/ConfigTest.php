@@ -11,7 +11,9 @@ class ConfigTest extends PHPUnit_Framework_TestCase
 {
     public function SetUp()
     {
-        Config::getInstance(__DIR__ . '/config-files-list.php');
+        Config::getInstance([
+            __DIR__ . '/config/test.php',
+        ]);
     }
 
     public function testInit()
