@@ -113,8 +113,8 @@ class Config
      */
     public function _merge($route, array $data)
     {
-        $custom = $this->_get($route, []);
-        $res = array_replace_recursive($data, $custom);
+        $old = $this->_get($route, []);
+        $res = array_replace_recursive($old, $data);
         $this->_set($route, $res);
     }
 
