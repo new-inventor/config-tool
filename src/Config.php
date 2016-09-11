@@ -1,188 +1,102 @@
 <?php
 /**
- * User: Ionov George
- * Date: 17.03.2016
- * Time: 9:04
+ * Created by PhpStorm.
+ * User: inventor
+ * Date: 11.09.2016
+ * Time: 22:27
  */
 
 namespace NewInventor\ConfigTool;
 
+
 use NewInventor\ConfigTool\Helper\ArrayHelper;
-use NewInventor\Patterns\SingletonTrait;
-use NewInventor\TypeChecker\Exception\ArgumentException;
 use NewInventor\TypeChecker\Exception\ArgumentTypeException;
-use NewInventor\TypeChecker\SimpleTypes;
-use NewInventor\TypeChecker\TypeChecker;
 
 class Config
 {
-    use SingletonTrait;
-    /** @var array */
-    protected static $settings = [];
-    /** @var array */
-    protected $routingPaths;
+    protected static $configDir;
+    protected static $config;
 
     const DEFAULT_KEY = 'default';
     const ALIAS_KEY = 'alias';
 
     /**
      * Config constructor.
-     * @param array $routing
+     *
+     * @param string $configDir
      */
-    protected function __construct(array $routing = [])
+    public static function init($configDir)
     {
-        $this->setRoutingPaths($routing);
+        if(file_exists($configDir)) {
+            self::$configDir = $configDir;
+        }
+        self::loadFiles();
+    }
 
-        foreach($this->routingPaths as $path){
-            if(!file_exists($path)){
-                continue;
+    protected static function loadFiles()
+    {
+        self::$config = [];
+        $dir = new \DirectoryIterator(self::$configDir);
+        foreach($dir as $fileInfo){
+            if(!$fileInfo->isDot() && $fileInfo->isFile()){
+                self::$config[substr($fileInfo->getFilename(), 0, -4)] = include $fileInfo->getPathname();
             }
-            $settings = include $path;
-            $this->_merge([], $settings);
         }
     }
 
     /**
-     * @param array $routing
-     * @throws ArgumentException
-     * @throws \Exception
-     */
-    protected function setRoutingPaths(array $routing)
-    {
-        TypeChecker::getInstance()
-            ->checkArray($routing, [SimpleTypes::STRING], 'routing')
-            ->throwCustomErrorIfNotValid('Список путей к файлам настроек должен быть массивом строк.');
-        $this->routingPaths = $routing;
-    }
-
-    /**
      * @param string|int|array $route
-     * @param mixed $default
+     * @param mixed            $default
+     *
      * @return mixed
      * @throws ArgumentTypeException
      */
     public static function get($route, $default = null)
     {
-        return static::getInstance()->_get($route, $default);
+        return ArrayHelper::get(self::$config, $route, $default);
     }
 
     /**
      * @param string|int|array $route
-     * @param null $default
-     * @return mixed|null
-     */
-    public function _get($route, $default = null)
-    {
-        return ArrayHelper::get(static::$settings, $route, $default);
-    }
-
-    /**
-     * @param string|int|array $route
-     * @param mixed $value
+     * @param mixed            $value
+     *
      * @throws ArgumentTypeException
      */
     public static function set($route, $value)
     {
-        static::getInstance()->_set($route, $value);
+        ArrayHelper::set(self::$config, $route, $value);
     }
 
     /**
      * @param string|int|array $route
-     * @param mixed $value
-     * @throws Exception\SetException
-     */
-    public function _set($route, $value)
-    {
-        ArrayHelper::set(static::$settings, $route, $value);
-    }
-
-    /**
-     * @param string|int|array $route
-     * @param array $data
+     * @param array            $data
+     *
      * @throws ArgumentTypeException
      */
     public static function merge($route, array $data)
     {
-        static::getInstance()->_merge($route, $data);
-    }
-
-    /**
-     * @param string|int|array $route
-     * @param array $data
-     * @throws ArgumentTypeException
-     */
-    public function _merge($route, array $data)
-    {
-        $old = $this->_get($route, []);
+        $old = self::get($route, []);
         $res = array_replace_recursive($old, $data);
-        $this->_set($route, $res);
-    }
-
-    /**
-     * @param string|int|array $route
-     * @param string $filePath
-     * @throws ArgumentException
-     */
-    public static function mergeFile($route, $filePath)
-    {
-        static::getInstance()->_mergeFile($route, $filePath);
-    }
-
-    /**
-     * @param string|int|array $route
-     * @param string           $filePath
-     *
-     * @throws ArgumentException
-     */
-    public function _mergeFile($route, $filePath)
-    {
-        TypeChecker::getInstance()
-            ->isString($filePath, 'filePath')
-            ->throwTypeErrorIfNotValid();
-
-        if (file_exists($filePath)) {
-            $config = include $filePath;
-            $this->_merge($route, $config);
-        } else {
-            throw new ArgumentException('Файл настроек не найден', 'filePath');
-        }
+        self::set($route, $res);
     }
 
     /**
      * @param array|string|int $baseRoute
      * @param array|string|int $route
-     * @param string $name
-     * @param mixed $default
+     * @param string           $name
+     * @param mixed            $default
+     *
      * @return mixed|null
      */
     public static function find($baseRoute, $route, $name = '', $default = null)
     {
-        return static::getInstance()->_find($baseRoute, $route, $name, $default);
-    }
-
-    /**
-     * @param array|string|int $baseRoute
-     * @param array|string|int $route
-     * @param string $name
-     * @param mixed $default
-     * @return mixed|null
-     */
-    public function _find($baseRoute, $route, $name = '', $default = null)
-    {
-        $data = $this->_get($baseRoute);
+        $data = self::get($baseRoute);
         $el = ArrayHelper::get($data, $route);
-        if(is_string($el)){
+        if (is_string($el)) {
             return $el;
-        }elseif(is_array($el)){
-            if(array_key_exists($name, $el)){
+        } elseif (is_array($el)) {
+            if (array_key_exists($name, $el)) {
                 return $el[$name];
-            }
-            $alias = $this->getAlias($name, $baseRoute);
-            if($alias !== null && array_key_exists($alias, $el)){
-                return $el[$alias];
-            }
-            if(isset($el[static::DEFAULT_KEY])){
-                return $el[static::DEFAULT_KEY];
             }
         }
 
@@ -191,25 +105,11 @@ class Config
 
     /**
      * @param array|string|int $route
+     *
      * @return bool
      */
-    public function exist($route)
+    public static function exist($route)
     {
-        return $this->get($route) != null;
-    }
-
-    public function getDefault($route)
-    {
-        return static::get(array_push($route, static::DEFAULT_KEY));
-    }
-
-    public function getAlias($name, $baseRoute = [])
-    {
-        return static::get(array_merge($baseRoute, [static::ALIAS_KEY, $name]));
-    }
-
-    public function aliasesExists($baseRoute = [])
-    {
-        return $this->exist(array_push($baseRoute, static::ALIAS_KEY));
+        return self::get($route) !== null;
     }
 }

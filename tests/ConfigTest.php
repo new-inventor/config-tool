@@ -11,14 +11,12 @@ class ConfigTest extends PHPUnit_Framework_TestCase
 {
     public function SetUp()
     {
-        Config::getInstance([
-            __DIR__ . '/config/test.php',
-        ]);
+        Config::init(__DIR__ . '/config');
     }
 
     public function testInit()
     {
-        $this->assertEquals('qwe', Config::get(['test', 'test']));
+        $this->assertNotEquals('qwe', Config::get(['test', 'test']));
         $this->assertEquals('qwe', Config::get(['test', 'test', 0], 'qwe'));
     }
 
@@ -27,10 +25,10 @@ class ConfigTest extends PHPUnit_Framework_TestCase
         $this->assertNull(Config::get(0));
         $this->assertNull(Config::get('2'));
         $this->assertNull(Config::get('zxc'));
-        $this->assertEquals('asd', Config::get('123'));
-        $this->assertEquals('123', Config::get(['test', 'default']));
-        $this->assertEquals('123', Config::get(['test', '11'], '123'));
-        $this->assertEquals('qwe', Config::get(['11', 'test'], 'qwe'));
+        $this->assertArrayHasKey('123', Config::get('test'));
+        $this->assertEquals('123', Config::get(['test', 'test', 'default']));
+        $this->assertEquals('123', Config::get(['test', 'test', '11'], '123'));
+        $this->assertEquals('qwe', Config::get(['test', '11', 'test'], 'qwe'));
     }
 
     public function testSet()
@@ -43,21 +41,15 @@ class ConfigTest extends PHPUnit_Framework_TestCase
 
     public function testFind()
     {
-        $this->assertEquals('123', Config::find([], 'test', 'asd'));
-        $this->assertEquals('123', Config::find([], 'test', 'asd', 321));
+        $this->assertNull(Config::find([], 'test', 'asd'));
+        $this->assertArrayHasKey('123', Config::find([], 'test', 'test1'));
+        $this->assertArrayHasKey('123', Config::find([], 'test', 'test1', 321));
         $this->assertEquals(321, Config::find([], 'test1', 'asd', 321));
-        $this->assertEquals('eqwew', Config::find([], 'test', 'name name name'));
     }
 
     public function testMerge()
     {
         Config::merge('status', ['array' => ['dfs', 'dfsdf'], 'asdasd']);
-        $this->assertEquals('asdasd', Config::get(['status', 0]));
-    }
-
-    public function testFile()
-    {
-        Config::mergeFile('status', __DIR__ . '/config/main.php');
         $this->assertEquals('asdasd', Config::get(['status', 0]));
     }
 }
