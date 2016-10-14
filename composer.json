@@ -5,7 +5,7 @@
   "license": "MIT",
   "authors": [
     {
-      "name": "Georgy Ionov",
+      "name": "George Ionov",
       "email": "newinventor20@gmail.com"
     }
   ],
@@ -19,8 +19,7 @@
   },
   "require": {
     "php": ">=5.4.0",
-    "new-inventor/patterns": "*",
-    "new-inventor/php-type-checker": "*"
+    "new-inventor/php-type-checker": "^2.0"
   },
   "require-dev": {
     "phpunit/phpunit": "5.1.*"

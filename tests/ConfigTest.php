@@ -16,40 +16,33 @@ class ConfigTest extends PHPUnit_Framework_TestCase
 
     public function testInit()
     {
-        $this->assertNotEquals('qwe', Config::get(['test', 'test']));
-        $this->assertEquals('qwe', Config::get(['test', 'test', 0], 'qwe'));
+        self::assertNotEquals('qwe', Config::get(['test', 'test']));
+        self::assertEquals('qwe', Config::get(['test', 'test', 0], 'qwe'));
     }
 
     public function testGet()
     {
-        $this->assertNull(Config::get(0));
-        $this->assertNull(Config::get('2'));
-        $this->assertNull(Config::get('zxc'));
-        $this->assertArrayHasKey('123', Config::get('test'));
-        $this->assertEquals('123', Config::get(['test', 'test', 'default']));
-        $this->assertEquals('123', Config::get(['test', 'test', '11'], '123'));
-        $this->assertEquals('qwe', Config::get(['test', '11', 'test'], 'qwe'));
+        self::assertNotNull(Config::get(null));
+        self::assertNull(Config::get(0));
+        self::assertNull(Config::get('2'));
+        self::assertNull(Config::get('zxc'));
+        self::assertArrayHasKey('123', Config::get('test'));
+        self::assertEquals('123', Config::get(['test', 'test', 'default']));
+        self::assertEquals('123', Config::get(['test', 'test', '11'], '123'));
+        self::assertEquals('qwe', Config::get(['test', '11', 'test'], 'qwe'));
     }
 
     public function testSet()
     {
         Config::set('qwe', ['asd' => '123', 'asd']);
-        $this->assertEquals('123', Config::get(['qwe', 'asd']));
+        self::assertEquals('123', Config::get(['qwe', 'asd']));
         Config::set(['test', 'poi'], false);
-        $this->assertFalse(Config::get(['test', 'poi']));
-    }
-
-    public function testFind()
-    {
-        $this->assertNull(Config::find([], 'test', 'asd'));
-        $this->assertArrayHasKey('123', Config::find([], 'test', 'test1'));
-        $this->assertArrayHasKey('123', Config::find([], 'test', 'test1', 321));
-        $this->assertEquals(321, Config::find([], 'test1', 'asd', 321));
+        self::assertFalse(Config::get(['test', 'poi']));
     }
 
     public function testMerge()
     {
         Config::merge('status', ['array' => ['dfs', 'dfsdf'], 'asdasd']);
-        $this->assertEquals('asdasd', Config::get(['status', 0]));
+        self::assertEquals('asdasd', Config::get(['status', 0]));
     }
 }

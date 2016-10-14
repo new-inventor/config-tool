@@ -8,44 +8,45 @@
 
 namespace NewInventor\ConfigTool;
 
-
-use NewInventor\ConfigTool\Helper\ArrayHelper;
 use NewInventor\TypeChecker\Exception\ArgumentTypeException;
+use NewInventor\TypeChecker\TypeCheck;
 
 class Config
 {
-    protected static $configDir;
-    protected static $config;
-
-    const DEFAULT_KEY = 'default';
-    const ALIAS_KEY = 'alias';
+    use TypeCheck;
+    /** @var StorageInterface */
+    public static $config;
 
     /**
      * Config constructor.
      *
      * @param string $configDir
+     *
+     * @throws ArgumentTypeException
      */
     public static function init($configDir)
     {
-        if(file_exists($configDir)) {
-            self::$configDir = $configDir;
-        }
-        self::loadFiles();
+        self::param()->callback(function ($value) {
+            return file_exists($value);
+        })->fail();
+        self::loadFiles($configDir);
     }
 
-    protected static function loadFiles()
+    protected static function loadFiles($configDir)
     {
-        self::$config = [];
-        $dir = new \DirectoryIterator(self::$configDir);
+        $config = [];
+        $dir = new \DirectoryIterator($configDir);
         foreach($dir as $fileInfo){
             if(!$fileInfo->isDot() && $fileInfo->isFile()){
-                self::$config[substr($fileInfo->getFilename(), 0, -4)] = include $fileInfo->getPathname();
+                $config[substr($fileInfo->getFilename(), 0, -4)] = include $fileInfo->getPathname();
             }
         }
+
+        self::$config = StorageFactory::make('array')->init($config);
     }
 
     /**
-     * @param string|int|array $route
+     * @param string|null|array $route
      * @param mixed            $default
      *
      * @return mixed
@@ -53,7 +54,7 @@ class Config
      */
     public static function get($route, $default = null)
     {
-        return ArrayHelper::get(self::$config, $route, $default);
+        return self::$config->get($route, $default);
     }
 
     /**
@@ -64,7 +65,7 @@ class Config
      */
     public static function set($route, $value)
     {
-        ArrayHelper::set(self::$config, $route, $value);
+        self::$config->set($route, $value);
     }
 
     /**
@@ -75,32 +76,9 @@ class Config
      */
     public static function merge($route, array $data)
     {
-        $old = self::get($route, []);
+        $old = self::$config->get($route, []);
         $res = array_replace_recursive($old, $data);
-        self::set($route, $res);
-    }
-
-    /**
-     * @param array|string|int $baseRoute
-     * @param array|string|int $route
-     * @param string           $name
-     * @param mixed            $default
-     *
-     * @return mixed|null
-     */
-    public static function find($baseRoute, $route, $name = '', $default = null)
-    {
-        $data = self::get($baseRoute);
-        $el = ArrayHelper::get($data, $route);
-        if (is_string($el)) {
-            return $el;
-        } elseif (is_array($el)) {
-            if (array_key_exists($name, $el)) {
-                return $el[$name];
-            }
-        }
-
-        return $default;
+        self::$config->set($route, $res);
     }
 
     /**
@@ -108,8 +86,16 @@ class Config
      *
      * @return bool
      */
-    public static function exist($route)
+    public static function has($route)
     {
-        return self::get($route) !== null;
+        return self::$config->has($route);
+    }
+
+    /**
+     * @param array|string|int $route
+     */
+    public static function delete($route)
+    {
+        self::$config->delete($route);
     }
 }
